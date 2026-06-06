@@ -24,8 +24,8 @@ import { IconPin } from "@tabler/icons-react";
 const extractPolygon = (
   featureCollection?: FeatureCollection,
 ): Polygon | null => {
-  const l = featureCollection?.features.length;
-  const exists = featureCollection?.features[l -1]
+  const l = featureCollection?.features.length ?? 0;
+  const exists = featureCollection?.features[(l -1)]
   if (exists?.geometry.type !== "Polygon") {
     return null;
   }
