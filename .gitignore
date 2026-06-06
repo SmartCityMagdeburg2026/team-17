@@ -1,0 +1,6 @@
+.vscode
+.aider*
+/node_modules/
+local_data/*
+!local_data/README.md
+.env

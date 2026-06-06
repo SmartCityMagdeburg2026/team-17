@@ -1,0 +1,41 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_ORS_HOST=${VITE_ORS_HOST}
+        - VITE_BACKEND_HOST=${VITE_BACKEND_HOST}
+    restart: unless-stopped
+    networks:
+      - hackathon
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.entryPoints=websecure"
+      - "traefik.http.routers.frontend.rule=Host(`magdeburg.DO_NOT_HARDCODE_URLS`)"
+      - "traefik.http.routers.frontend.tls=true"
+      - "traefik.http.routers.frontend.tls.certresolver=dns_resolver"
+      - "traefik.http.routers.frontend.service=frontend"
+      - "traefik.http.routers.frontend.priority=10"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - hackathon
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.entryPoints=websecure"
+      - "traefik.http.routers.backend.rule=Host(`backend.DO_NOT_HARDCODE_URLS`)"
+      - "traefik.http.routers.backend.tls=true"
+      - "traefik.http.routers.backend.tls.certresolver=dns_resolver"
+      - "traefik.http.routers.backend.service=backend"
+      - "traefik.http.routers.backend.priority=10"
+      - "traefik.http.services.backend.loadbalancer.server.port=3000"
+
+networks:
+  hackathon:
+    external: true
+    name: "hackathon_hackathon"

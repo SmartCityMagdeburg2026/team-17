@@ -1,0 +1,47 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_ORS_HOST=${VITE_ORS_HOST:-http://localhost:3002/ors}
+        - VITE_BACKEND_HOST=${VITE_BACKEND_HOST:-http://localhost:3001}
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    restart: unless-stopped
+
+  openrouteservice:
+    image: openrouteservice/openrouteservice:v9.9.0
+    restart: unless-stopped
+    ports:
+      - "3002:8082"
+    volumes:
+      - ./local_data/openrouteservice:/home/ors
+    environment:
+      REBUILD_GRAPHS: False
+      CONTAINER_LOG_LEVEL: INFO
+      XMS: 2g
+      XMX: 4g
+      ADDITIONAL_JAVA_OPTS: ""
+
+  overpass:
+    image: wiktorn/overpass-api:v0.7.62.9
+    ports:
+      - 12345:80
+    volumes:
+      - /local_data/overpass/db:/db
+    environment:
+      - OVERPASS_META=yes
+      - OVERPASS_MODE=init
+      - OVERPASS_PLANET_URL=file:///db/sachsen-anhalt-latest.osm.bz2
+      - OVERPASS_DIFF_URL=
+      - OVERPASS_RULES_LOAD=10
+      - OVERPASS_USE_AREAS=true
+      - OVERPASS_ALLOW_DUPLICATE_QUERIES=yes

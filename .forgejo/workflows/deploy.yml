@@ -1,0 +1,26 @@
+name: Deploy to prod
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: hackathon
+    container:
+      image: ghcr.io/catthehacker/ubuntu:act-latest
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          echo "VITE_ORS_HOST=${{ vars.VITE_ORS_HOST }}" >> .env
+          echo "VITE_BACKEND_HOST=${{ vars.VITE_BACKEND_HOST }}" >> .env
+      - name: Build and deploy containers
+        run: |
+          docker compose -f docker-compose.prod.yml up --build -d --remove-orphans
+          docker image prune -f
